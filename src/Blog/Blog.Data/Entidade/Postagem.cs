@@ -6,6 +6,7 @@
         public string Titulo { get; set; }
         public string Conteudo { get; set; }
         public DateTime DataPublicacao { get; set; }
+        public int AutorId { get; set; }
         public Autor Autor { get; set; }
         public IEnumerable<Comentario> Comentarios { get; set; }    
     }

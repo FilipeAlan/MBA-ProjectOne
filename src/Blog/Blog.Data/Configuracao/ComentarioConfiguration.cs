@@ -8,7 +8,33 @@ namespace Blog.Data.Configuracao
     {
         public void Configure(EntityTypeBuilder<Comentario> builder)
         {
-            throw new NotImplementedException();
+            builder.ToTable("COMENTARIO");
+
+            builder.HasKey(c => c.Id);
+
+            builder.Property(c => c.Id)
+                .HasColumnName("ID")
+                .ValueGeneratedOnAdd();
+
+            builder.Property(c => c.Nome)
+                .HasColumnName("NOME")
+                .HasMaxLength(100)
+                .IsRequired();
+
+            builder.Property(c => c.Email)
+                .HasColumnName("EMAIL")
+                .HasMaxLength(100)
+                .IsRequired();
+
+            builder.Property(c => c.Conteudo)
+                .HasColumnName("CONTEUDO")
+                .HasMaxLength(500)
+                .IsRequired();
+
+            builder.HasOne(c => c.Postagem)
+                .WithMany(p => p.Comentarios)
+                .HasForeignKey(c => c.PostagemId)                
+                .HasConstraintName("FK_COMENTARIO_POSTAGEM");
         }
     }
 }
