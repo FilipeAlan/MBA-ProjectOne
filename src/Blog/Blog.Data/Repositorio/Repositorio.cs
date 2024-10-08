@@ -13,7 +13,7 @@ namespace Blog.Data.Repositorio
         }
         public async Task<int> Adicionar(T entidade)
         {
-            _context.Add(entidade);            
+            _context.Add(entidade);
             return await _context.SaveChangesAsync();
         }
         public async Task<int> Atualizar(T entidade)
@@ -21,11 +21,21 @@ namespace Blog.Data.Repositorio
             _context.Update(entidade);
             return await _context.SaveChangesAsync();
         }
+        public async Task<int> Deletar(int id)
+        {
+            var entidade = await _context.Set<T>().FindAsync(id);
+
+            if (entidade == null)
+            {
+                throw new KeyNotFoundException($"Entidade com id {id} não encontrada.");
+            }
+            return await Deletar(entidade);
+        }
+
         public async Task<int> Deletar(T entidade)
         {
             _context.Set<T>().Remove(entidade);
             return await _context.SaveChangesAsync();
-
         }
         public async Task<T> ObterPorId(int id)
         {

@@ -1,0 +1,23 @@
+﻿@model IEnumerable<AutorDto>
+
+<div class="container mt-5">
+    <h2>Autores</h2>
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var autor in Model)
+            {
+                <tr>
+                    <td>@autor.Nome</td>
+                    <td>@autor.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

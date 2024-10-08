@@ -22,10 +22,12 @@ namespace Blog.Data.Configuracao
 
             builder.Property(p => p.Titulo)
                 .HasColumnName("TITULO")
+                .HasMaxLength(100)
                 .IsRequired();
 
             builder.Property(p => p.Conteudo)
                 .HasColumnName("CONTEUDO")
+                .HasMaxLength(500)
                 .IsRequired();
 
             builder.HasMany(p => p.Comentarios)

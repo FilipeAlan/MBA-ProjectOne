@@ -8,5 +8,6 @@ namespace Blog.Data.Interface
         Task<int> Adicionar(T entidade);
         Task<int> Atualizar(T entidade);
         Task<int> Deletar(T entidade);
+        Task<int> Deletar(int id);
     }
 }
