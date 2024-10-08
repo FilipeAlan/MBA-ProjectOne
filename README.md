@@ -43,6 +43,7 @@ A estrutura do projeto é organizada da seguinte forma:
   - Blog.Web/ - Projeto MVC
   - Blog.Api/ - API RESTful
   - Blog.Data/ - Modelos de Dados e Configuração do EF Core
+  - Blog.Data.Ioc/ - Inversão de controle para fazer uma injeção de dependência. Para utilizar separar da API e do MVC a instalação de pacotes relacionados a banco de dados.
 - README.md - Arquivo de Documentação do Projeto
 - FEEDBACK.md - Arquivo para Consolidação dos Feedbacks
 - .gitignore - Arquivo de Ignoração do Git
