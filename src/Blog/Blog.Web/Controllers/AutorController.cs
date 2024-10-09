@@ -1,59 +1,77 @@
-﻿using Blog.Data.Entidade;
+﻿using AutoMapper;
+using Blog.Data.Entidade;
 using Blog.Data.Interface;
+using Blog.Web.Mapping;
 using Blog.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace Blog.Web.Controllers
 {
     public class AutorController : Controller
-    {
+    {        
+        private readonly IMapper _mapper;
         private readonly IAutorRepositorio _autorRepositorio;
-        public AutorController(IAutorRepositorio autorRepositorio)
+        public AutorController(IAutorRepositorio autorRepositorio, IMapper mapper)
         {
             _autorRepositorio = autorRepositorio;
+            _mapper = mapper;
+        }
+        
+        public async Task<IActionResult> Index()
+        {
+            var autores = await _autorRepositorio.ObterTodos();
+            var autoresModel = _mapper.Map<IEnumerable<AutorModel>>(autores);
+
+            return View("Index", autoresModel);
         }
 
-        // GET: AutorController
-        public async Task<IActionResult> Index()
-        {           
-                var autores = await _autorRepositorio.ObterTodos();
-                var autoresDto = autores.Select(autor => new AutorDto
-                {
-                    Id = autor.Id,
-                    Nome = autor.Nome,
-                    Email = autor.Email
-                }).ToList();
-
-                return View(autoresDto);           
+        public async Task<IActionResult> Create(int id)
+        {            
+            return View();
         }        
 
-        // GET: AutorController/Create
-        public async Task<IActionResult> Create(AutorDto autorDto)
+        [HttpPost]
+        public async Task<IActionResult> Create(AutorModel autorModel)
         {
-            if (ModelState.IsValid)
-            {                
-                var autor = new Autor
-                {
-                    Nome = autorDto.Nome,
-                    Email = autorDto.Email
-                };
-                _autorRepositorio.Adicionar(autor);
-                return RedirectToAction("Index");
+            if (!ModelState.IsValid)
+            {   
+                return View("Limbo");
             }
-            return View();
+
+            var autor = _mapper.Map<Autor>(autorModel);
+            await _autorRepositorio.Adicionar(autor);
+
+            return RedirectToAction("Index");
         }
 
-        // GET: AutorController/Edit/5
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit()
         {
             return View();
         }
 
-        // GET: AutorController/Delete/5
+        [HttpPut]
+        public async Task<IActionResult> Edit([Bind("Id","Nome","Email") ]AutorModel autorModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Limbo");
+            }
+            var autor =_mapper.Map<Autor>(autorModel);
+            await _autorRepositorio.Atualizar(autor);
+            return RedirectToAction("Index");
+            
+        }
+        public async Task<IActionResult> Delete()
+        {            
+            return View();
+        }
+
+        [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
             await _autorRepositorio.Deletar(id);
-            return View();
+            return RedirectToAction("Index");
         }
     }
 }

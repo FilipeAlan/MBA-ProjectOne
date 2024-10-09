@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blog.Web", "Blog.Web\Blog.W
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blog.Data", "Blog.Data\Blog.Data.csproj", "{3DCE20CB-F825-43FC-8D5A-A55DF420E60A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blog.Data.Ioc", "Blog.Data.Ioc\Blog.Data.Ioc.csproj", "{1288B7EE-F536-47B2-A504-043BF6624D47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blog.Data.Ioc", "Blog.Data.Ioc\Blog.Data.Ioc.csproj", "{1288B7EE-F536-47B2-A504-043BF6624D47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

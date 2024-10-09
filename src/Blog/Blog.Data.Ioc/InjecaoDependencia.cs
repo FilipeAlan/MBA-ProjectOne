@@ -15,7 +15,7 @@ namespace Blog.Data.Ioc
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<BlogDbContext>(options => options.UseSqlServer(connectionString));
-            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<BlogDbContext>();
+            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<BlogDbContext>();            
             services.AddScoped<IAutorRepositorio, AutorRepositorio>();
             services.AddScoped<IComentarioRepositorio, ComentarioRepositorio>();
             services.AddScoped<IPostagemRepositorio, PostagemRepositorio>();            

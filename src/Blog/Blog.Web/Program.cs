@@ -1,10 +1,12 @@
 using Blog.Data.Ioc;
+using Blog.Web.Mapping;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddBlogData(builder.Configuration);
+builder.Services.AddAutoMapper(typeof(EntidadeModelAutorMapping));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
