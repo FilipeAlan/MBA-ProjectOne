@@ -1,0 +1,35 @@
+﻿@model PostagemModel
+
+<div>
+    <h3>@Model.Titulo</h3>
+    <p>@Model.Conteudo</p>
+    <p>Publicado em: @Model.DataPublicacao.ToShortDateString()</p>
+    <p>Autor: @Model.Autor.Nome</p>
+
+    <h4>Comentários</h4>
+    @if (Model.Comentarios != null && Model.Comentarios.Any())
+    {
+        <ul>
+            @foreach (var comentario in Model.Comentarios)
+            {
+                <li>
+                    <strong>@comentario.Nome:</strong> @comentario.Conteudo
+                    <button onclick="excluirComentario(@comentario.Id)">Excluir Comentário</button>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Não há comentários para esta postagem.</p>
+    }
+</div>
+
+<script>
+    function excluirComentario(id) {
+        $.post('/Comentario/Excluir/' + id, function () {
+            alert('Comentário excluído');
+            location.reload(); // Recarrega a página para atualizar a lista
+        });
+    }
+</script>

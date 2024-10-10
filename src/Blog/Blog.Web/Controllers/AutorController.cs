@@ -32,7 +32,7 @@ namespace Blog.Web.Controllers
         }        
 
         [HttpPost]
-        public async Task<IActionResult> Create(AutorModel autorModel)
+        public async Task<IActionResult> Create([Bind("Nome,Email")] AutorModel autorModel)
         {
             if (!ModelState.IsValid)
             {   
@@ -51,7 +51,7 @@ namespace Blog.Web.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Edit([Bind("Id","Nome","Email") ]AutorModel autorModel)
+        public async Task<IActionResult> Edit([Bind("Id","Nome","Email")] AutorModel autorModel)
         {
             if (!ModelState.IsValid)
             {

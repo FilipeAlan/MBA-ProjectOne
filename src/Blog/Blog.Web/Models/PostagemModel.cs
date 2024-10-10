@@ -15,6 +15,7 @@ namespace Blog.Web.Models
         public string Conteudo { get; set; }        
         public DateTime DataPublicacao { get; set; } = DateTime.Now;
         [Required]
-        public AutorModel Autor { get; set; }        
+        public AutorModel Autor { get; set; }
+        public IEnumerable<ComentarioModel> Comentarios { get; set; }
     }
 }

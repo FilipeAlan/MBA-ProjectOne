@@ -6,7 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddBlogData(builder.Configuration);
-builder.Services.AddAutoMapper(typeof(EntidadeModelAutorMapping));
+builder.Services.AddAutoMapper(typeof(EntidadeModelMapping));
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";  
+    options.AccessDeniedPath = "/Acccount/AccessDenied";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

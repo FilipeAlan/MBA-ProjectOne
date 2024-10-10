@@ -1,0 +1,47 @@
+﻿@model PostagemModel
+
+<div class="container">
+    <h2>Criar Nova Postagem</h2>
+
+    <!-- Exibe mensagens de erro de validação -->
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- Formulário de Criação -->
+    @using (Html.BeginForm("Create", "Postagem", FormMethod.Post, new { @class = "form-horizontal" }))
+    {
+        @Html.AntiForgeryToken() <!-- Proteção contra CSRF -->
+
+        <div class="form-group">
+            <label for="Titulo" class="control-label">Título</label>
+            @Html.TextBoxFor(m => m.Titulo, new { @class = "form-control", placeholder = "Digite o título da postagem" })
+            @Html.ValidationMessageFor(m => m.Titulo, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            <label for="Conteudo" class="control-label">Conteúdo</label>
+            @Html.TextAreaFor(m => m.Conteudo, new { @class = "form-control", placeholder = "Digite o conteúdo da postagem", rows = 5 })
+            @Html.ValidationMessageFor(m => m.Conteudo, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            <label for="AutorId" class="control-label">Autor</label>
+            @Html.DropDownListFor(m => m.Autor, new SelectList(ViewBag.Autores, "Id", "Nome"), "Selecione um Autor", new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Autor, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Salvar Postagem</button>
+        </div>
+    }
+</div>
+
