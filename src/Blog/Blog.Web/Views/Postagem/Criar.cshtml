@@ -1,0 +1,24 @@
+﻿@model PostagemModel
+
+<form asp-action="Criar" method="post" class="form-horizontal">
+    @Html.AntiForgeryToken() <!-- Proteção contra CSRF -->
+
+    <div class="form-group">
+        <label asp-for="Titulo" class="control-label"></label>
+        <input asp-for="Titulo" class="form-control" placeholder="Digite o título da postagem" />
+        <span asp-validation-for="Titulo" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Conteudo" class="control-label"></label>
+        <textarea asp-for="Conteudo" class="form-control" placeholder="Digite o conteúdo da postagem" rows="5"></textarea>
+        <span asp-validation-for="Conteudo" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Salvar Postagem</button>
+    </div>
+</form>
+
+
+

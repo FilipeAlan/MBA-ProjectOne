@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Blog.Data.Entidade;
 using Blog.Data.Interface;
+using Blog.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Blog.Web.Controllers
 {
@@ -8,11 +11,31 @@ namespace Blog.Web.Controllers
     {
         private readonly IComentarioRepositorio _comentarioRepositorio;
         private readonly IMapper _mapper;
+
         public ComentarioController(IComentarioRepositorio comentarioRepositorio,IMapper mapper)
         {
             _comentarioRepositorio = comentarioRepositorio;
             _mapper = mapper;
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CriarComentario(ComentarioModel comentarioModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            var autorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var comentario = _mapper.Map<Comentario>(comentarioModel);
+            comentario.AutorId = autorId;
+            comentario.DataPublicacao = DateTime.Now;
+
+            await _comentarioRepositorio.Adicionar(comentario);
+
+            return RedirectToAction("Index", "Home", new { id = comentarioModel.PostagemId });
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Excluir(int id)
@@ -25,9 +48,10 @@ namespace Blog.Web.Controllers
             }
 
             await _comentarioRepositorio.Deletar(comentario);
-            
+
             return Ok();
         }
     }
+
 
 }

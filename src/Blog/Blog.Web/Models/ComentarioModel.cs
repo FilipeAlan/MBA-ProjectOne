@@ -18,5 +18,7 @@ namespace Blog.Web.Models
         [MaxLength(500, ErrorMessage = "O campo {0} deve ter no máximo {1} caracteres.")]
         [MinLength(1, ErrorMessage = "O campo {0} deve ter no mínimo {1} caracteres.")]        
         public string Conteudo { get; set; }        
+        public DateTime DataPublicacao { get; set; }       
+        public int PostagemId { get; set; }
     }
 }

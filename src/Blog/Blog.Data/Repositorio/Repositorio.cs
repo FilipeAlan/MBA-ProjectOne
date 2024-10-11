@@ -36,14 +36,6 @@ namespace Blog.Data.Repositorio
         {
             _context.Set<T>().Remove(entidade);
             return await _context.SaveChangesAsync();
-        }
-        public async Task<T> ObterPorId(int id)
-        {
-            return await _context.FindAsync<T>(id);
-        }
-        public async Task<IEnumerable<T>> ObterTodos()
-        {
-            return await _context.Set<T>().ToListAsync();
-        }
+        }             
     }
 }

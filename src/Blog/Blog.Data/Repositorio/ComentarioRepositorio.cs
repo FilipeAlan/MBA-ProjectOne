@@ -9,5 +9,10 @@ namespace Blog.Data.Repositorio
         public ComentarioRepositorio(BlogDbContext context) : base(context)
         {
         }
+
+        public async Task<Comentario> ObterPorId(int id)
+        {
+           return await _context.Comentarios.FindAsync(id);
+        }
     }
 }

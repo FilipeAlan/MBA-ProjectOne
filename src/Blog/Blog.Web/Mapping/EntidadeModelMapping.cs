@@ -9,8 +9,8 @@ namespace Blog.Web.Mapping
         {
             CreateMap<Autor, AutorModel>().ReverseMap();
             CreateMap<Postagem, PostagemModel>().ReverseMap();
-            CreateMap<Comentario, ComentarioModel>().ReverseMap();
-            CreateMap<Autor, RegisterModel>().ReverseMap();
+            CreateMap<Comentario, ComentarioModel>().ReverseMap();            
+            CreateMap<Autor, AutorModel>().ReverseMap();
         }
     }
 }

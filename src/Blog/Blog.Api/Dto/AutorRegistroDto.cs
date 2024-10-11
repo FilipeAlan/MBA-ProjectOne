@@ -1,22 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Blog.Web.Models
+namespace Blog.Api.Dto
 {
-    public class AutorModel
+    public class AutorRegistroDto
     {
+        [Required(ErrorMessage = "O nome é obrigatório para o registro.")]
+        public string Nome { get; set; }
+
         [Required(ErrorMessage = "O e-mail é obrigatório.")]
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "A senha é obrigatória.")]
         [DataType(DataType.Password)]
-        public string Password { get; set; }
-       
-        //Em alguns casos eu preciso, talvez vire outra model
-        public string Nome { get; set; }
-
-        public bool RememberMe { get; set; }
+        public string Password { get; set; }     
+        
     }
-
-
 }

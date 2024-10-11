@@ -9,6 +9,7 @@ namespace Blog.Web.Mapping
         public EntidadeDtoMapping()
         {
             CreateMap<Autor, AutorDto>().ReverseMap();
+            CreateMap<Autor, AutorRegistroDto>().ReverseMap();
             CreateMap<Postagem, PostagemDto>().ReverseMap();
             CreateMap<Comentario, ComentarioDto>().ReverseMap();            
         }

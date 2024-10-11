@@ -4,17 +4,12 @@ namespace Blog.Api.Dto
 {
     public class AutorDto
     {
-        public int Id { get; set; }
-
-        [Required]
-        [MaxLength(100, ErrorMessage = "O campo {0} deve ter no máximo {1} caracteres.")]
-        [MinLength(2, ErrorMessage = "O campo {0} deve ter no mínimo {1} caracteres.")]
+        [Required(ErrorMessage = "O nome é obrigatório para o registro.")]
         public string Nome { get; set; }
 
-        [Required]
-        [MaxLength(100, ErrorMessage = "O campo {0} deve ter no máximo {1} caracteres.")]
-        [MinLength(6, ErrorMessage = "O campo {0} deve ter no mínimo {1} caracteres.")]
-        [EmailAddress]
-        public string Email { get; set; }                
+        [Required(ErrorMessage = "O e-mail é obrigatório.")]
+        [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
+        public string Email { get; set; }             
+        
     }
 }

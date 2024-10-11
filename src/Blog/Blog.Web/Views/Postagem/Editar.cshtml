@@ -1,0 +1,36 @@
+﻿@model PostagemModel
+
+<div class="container">
+    <h2>Editar Postagem</h2>
+
+    <form asp-action="Editar" method="post" class="form-horizontal">
+        @Html.AntiForgeryToken() 
+
+        <div class="form-group">
+            <label asp-for="Titulo" class="control-label"></label>
+            <input asp-for="Titulo" class="form-control" placeholder="Digite o título da postagem" />
+            <span asp-validation-for="Titulo" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Conteudo" class="control-label"></label>
+            <textarea asp-for="Conteudo" class="form-control" rows="5" placeholder="Digite o conteúdo da postagem"></textarea>
+            <span asp-validation-for="Conteudo" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Autor.Nome" class="control-label"></label>
+            <input asp-for="Autor.Nome" class="form-control" disabled />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="DataPublicacao" class="control-label"></label>
+            <input asp-for="DataPublicacao" class="form-control" disabled />
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            <a asp-controller ="Home" asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>

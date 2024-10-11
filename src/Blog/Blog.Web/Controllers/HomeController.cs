@@ -1,3 +1,5 @@
+using AutoMapper;
+using Blog.Data.Interface;
 using Blog.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,26 +11,22 @@ namespace Blog.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IPostagemRepositorio _postagemRepositorio;
+        private readonly IMapper _mapper;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger,IPostagemRepositorio postagemRepositorio,IMapper mapper )
         {
+            _postagemRepositorio = postagemRepositorio;
+            _mapper = mapper;
             _logger = logger;
-        }
+        }        
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
+            var postagens = await _postagemRepositorio.ObterTodas();
+            var postagemModels = _mapper.Map<IEnumerable<PostagemModel>>(postagens);
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(postagemModels);
         }
     }
 }

@@ -7,34 +7,31 @@ namespace Blog.Data.Configuracao
     public class PostagemConfiguration : IEntityTypeConfiguration<Postagem>
     {
         public void Configure(EntityTypeBuilder<Postagem> builder)
-        {
-            builder.ToTable("POSTAGEM");
+        {           
+            builder.ToTable("Postagem");
 
-            builder.HasKey(p => p.Id);
-
-            builder.Property(p => p.Id)
-                .HasColumnName("ID")
-                .ValueGeneratedOnAdd();
-
-            builder.Property(p => p.DataPublicacao)
-                .HasColumnName("DATA_PUBLICACAO")
-                .IsRequired();
+            builder.HasKey(p => p.Id);        
 
             builder.Property(p => p.Titulo)
-                .HasColumnName("TITULO")
-                .HasMaxLength(100)
+                .HasMaxLength(200)
                 .IsRequired();
 
             builder.Property(p => p.Conteudo)
-                .HasColumnName("CONTEUDO")
-                .HasMaxLength(500)
+                .HasMaxLength(2000)
                 .IsRequired();
 
+            builder.Property(p => p.DataPublicacao)
+                .IsRequired();
+            
+            builder.HasOne(p => p.Autor)
+                .WithMany()  
+                .HasForeignKey(p => p.AutorId)             
+                .OnDelete(DeleteBehavior.Cascade);  
+            
             builder.HasMany(p => p.Comentarios)
                 .WithOne(c => c.Postagem)
                 .HasForeignKey(c => c.PostagemId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_POSTAGEM_COMENTARIO");
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

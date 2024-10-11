@@ -1,41 +1,97 @@
 ﻿@model IEnumerable<PostagemModel>
 
 <div class="container">
-    <div class="row">        
-        <div class="col-md-4">
+    <div class="row">
+        <!-- Lista de Postagens (lado esquerdo) -->
+        <div class="col-md-4" id="postList">
             <h4>Lista de Postagens</h4>
-            @if (Model != null && Model.Any())
-            {
-                <ul class="list-group">
-                    @foreach (var postagem in Model)
-                    {
-                        <li class="list-group-item">
-                            <a href="javascript:void(0);" onclick="carregarPostagem(@postagem.Id)">
-                                <h5>@postagem.Titulo</h5>
-                                <p>Publicado em: @postagem.DataPublicacao.ToShortDateString()</p>
-                                <p>Autor: @postagem.Autor.Nome</p>
-                            </a>
-                        </li>
-                    }
-                </ul>
-            }
-            else
-            {
-                <p>Não há postagens disponíveis no momento.</p>
-            }            
+            <ul class="list-group">
+                @foreach (var postagem in Model)
+                {
+                    <li class="list-group-item">
+                        <a href="#post-@postagem.Id">
+                            <h5>@postagem.Titulo</h5>
+                            <p>Publicado em: @postagem.DataPublicacao.ToShortDateString()</p>
+                        </a>
+                    </li>
+                }
+            </ul>
             <div class="mt-3">
-                <a href="@Url.Action("Create", "Postagem")" class="btn btn-primary">+ Nova Postagem</a>
+                <!-- Botão + Nova Postagem -->
+                <a asp-controller="Postagem" asp-action="Criar" class="btn btn-primary">+ Nova Postagem</a>
             </div>
-        </div>        
-        <div class="col-md-8" id="postDetail" style="overflow-y: scroll; max-height: 500px;">
-            <h3>Selecione uma postagem para ver os detalhes</h3>
+        </div>
+        <!-- Detalhes da Postagem e Comentários (lado direito) -->
+        <div class="col-md-8" style="overflow-y: scroll; max-height: 500px;">
+            @foreach (var postagem in Model)
+            {
+                <div id="post-@postagem.Id" class="postagem-detalhe mb-4">
+                    <h2>@postagem.Titulo</h2>
+                    <p><strong>Publicado em:</strong> @postagem.DataPublicacao.ToString("dd/MM/yyyy")</p>
+                    <p><strong>Autor:</strong> @postagem.Autor.Nome</p>
+                    <div class="postagem-conteudo">
+                        @postagem.Conteudo
+                    </div>
+
+                    <!-- Botões Editar e Excluir para a Postagem -->
+                    <a asp-action="Editar" asp-controller="Postagem" asp-route-id="@postagem.Id" class="btn btn-secondary btn-sm">
+                        Editar
+                    </a>
+
+                    <form asp-action="Excluir" asp-controller="Postagem" asp-route-id="@postagem.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta postagem?');">
+                            Excluir
+                        </button>
+                    </form>
+
+                    <!-- Lista de Comentários da Postagem -->
+                    <h4>Comentários</h4>
+                    <div id="comentarios-@postagem.Id">
+                        <ul class="list-group">
+                            @foreach (var comentario in postagem.Comentarios)
+                            {
+                                <li class="list-group-item">
+                                    <p><strong>@comentario.Nome</strong> - @comentario.DataPublicacao.ToString("dd/MM/yyyy")</p>
+                                    <p>@comentario.Conteudo</p>
+
+                                    <!-- Botões Editar e Excluir para Comentários -->
+                                    <a asp-action="EditarComentario" asp-controller="Comentario" asp-route-id="@comentario.Id" class="btn btn-secondary btn-sm">
+                                        Editar
+                                    </a>
+
+                                    <form asp-action="ExcluirComentario" asp-controller="Comentario" asp-route-id="@comentario.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este comentário?');">
+                                            Excluir
+                                        </button>
+                                    </form>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                    <!-- Formulário para Adicionar Novo Comentário. Todo: Atualizar só esse pedaço(Ajax?) -->
+                    <form asp-action="CriarComentario" asp-controller="Comentario" method="post">
+                        <input type="hidden" name="PostagemId" value="@postagem.Id" />
+
+                        <div class="form-group">
+                            <label for="nome">Nome:</label>
+                            <input type="text" name="Nome" value="@User.FindFirst("Nome")?.Value" class="form-control" readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" name="Email" value="@User.Identity.Name" class="form-control" readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="conteudo">Escreva seu comentário:</label>
+                            <textarea class="form-control" name="Conteudo" rows="3"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Adicionar Comentário</button>
+                    </form>
+                </div>
+            }
         </div>
     </div>
 </div>
-<script>
-    function carregarPostagem(id) {
-        $.get('@Url.Action("Detalhes", "Postagem")/' + id, function (data) {
-            $('#postDetail').html(data);
-        });
-    }
-</script>

@@ -17,9 +17,8 @@ namespace Blog.Data.Ioc
             services.AddDbContext<BlogDbContext>(options => options.UseSqlServer(connectionString));
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<BlogDbContext>()
-                .AddDefaultTokenProviders();            
-
-            services.AddScoped<IAutorRepositorio, AutorRepositorio>();
+                .AddDefaultTokenProviders(); 
+            
             services.AddScoped<IComentarioRepositorio, ComentarioRepositorio>();
             services.AddScoped<IPostagemRepositorio, PostagemRepositorio>();            
 

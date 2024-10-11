@@ -2,9 +2,7 @@
 using AutoMapper;
 using Blog.Api.Dto;
 using Blog.Data.Entidade;
-using Blog.Data.Interface;
-using Blog.Web.Mapping;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.Api.Controllers
@@ -13,27 +11,26 @@ namespace Blog.Api.Controllers
     [Route("api/[controller]")]
     public class AutorController : ControllerBase
     {
-        private readonly IAutorRepositorio _autorRepositorio;
         private readonly IMapper _mapper;
-        public AutorController(IAutorRepositorio autorRepositorio,IMapper mapper)
-        {
-            _autorRepositorio = autorRepositorio;
-            _mapper = mapper;
-        }
+        private readonly UserManager<Autor> _userManager; 
 
-        // GET: api/Autor
+        public AutorController(IMapper mapper, UserManager<Autor> userManager)
+        {
+            _mapper = mapper;
+            _userManager = userManager;
+        }
+                
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var autores = await _autorRepositorio.ObterTodos();
+            var autores = _userManager.Users.ToList(); 
             var autoresDto = _mapper.Map<IEnumerable<AutorDto>>(autores);
 
             return Ok(autoresDto);
         }
-
-        // POST: api/Autor
+       
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] AutorDto autorDto)
+        public async Task<IActionResult> Criar([FromBody] AutorRegistroDto autorDto)
         {
             if (!ModelState.IsValid)
             {
@@ -41,34 +38,60 @@ namespace Blog.Api.Controllers
             }
 
             var autor = _mapper.Map<Autor>(autorDto);
-            int result = await _autorRepositorio.Adicionar(autor);
+            
+            var result = await _userManager.CreateAsync(autor, autorDto.Password);
 
-            return Ok(result);
+            if (!result.Succeeded)
+            {                
+                return BadRequest(result.Errors);
+            }
+
+            return Ok(autor);
         }
-
-        // PUT: api/Autor/{id}
+        
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(int id, [FromBody] AutorDto autorDto)
+        public async Task<IActionResult> Edit(string id, [FromBody] AutorDto autorDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var autor = _mapper.Map<Autor>(autorDto);
-            int result = await _autorRepositorio.Atualizar(autor);
+            var autor = await _userManager.FindByIdAsync(id);
+            if (autor == null)
+            {
+                return NotFound("Autor não encontrado.");
+            }
+           
+            autor.Nome = autorDto.Nome;
+            autor.Email = autorDto.Email;
+            autor.UserName = autorDto.Email; 
 
-            return Ok(result);
+            var result = await _userManager.UpdateAsync(autor);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok(autor);
         }
-
-        // DELETE: api/Autor/{id}
+        
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(string id)
         {
-            int result = await _autorRepositorio.Deletar(id);
+            var autor = await _userManager.FindByIdAsync(id);
+            if (autor == null)
+            {
+                return NotFound("Autor não encontrado.");
+            }
 
-            return Ok(result);
+            var result = await _userManager.DeleteAsync(autor);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok("Autor excluído com sucesso.");
         }
     }
-
 }

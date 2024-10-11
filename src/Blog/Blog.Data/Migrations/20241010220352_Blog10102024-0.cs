@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Blog.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class blog071020240 : Migration
+    public partial class Blog101020240 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,6 +30,8 @@ namespace Blog.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -48,20 +50,6 @@ namespace Blog.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AUTOR",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    NOME = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    EMAIL = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AUTOR", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -171,46 +159,52 @@ namespace Blog.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "POSTAGEM",
+                name: "Postagem",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TITULO = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CONTEUDO = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DATA_PUBLICACAO = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AutorId = table.Column<int>(type: "int", nullable: false)
+                    Titulo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Conteudo = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    DataPublicacao = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AutorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    AutorId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_POSTAGEM", x => x.ID);
+                    table.PrimaryKey("PK_Postagem", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AUTOR_POSTAGEM",
+                        name: "FK_Postagem_AspNetUsers_AutorId",
                         column: x => x.AutorId,
-                        principalTable: "AUTOR",
-                        principalColumn: "ID",
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Postagem_AspNetUsers_AutorId1",
+                        column: x => x.AutorId1,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "COMENTARIO",
+                name: "Comentario",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    NOME = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    EMAIL = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CONTEUDO = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Conteudo = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     PostagemId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_COMENTARIO", x => x.ID);
+                    table.PrimaryKey("PK_Comentario", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_POSTAGEM_COMENTARIO",
+                        name: "FK_Comentario_Postagem_PostagemId",
                         column: x => x.PostagemId,
-                        principalTable: "POSTAGEM",
-                        principalColumn: "ID",
+                        principalTable: "Postagem",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -254,14 +248,19 @@ namespace Blog.Data.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_COMENTARIO_PostagemId",
-                table: "COMENTARIO",
+                name: "IX_Comentario_PostagemId",
+                table: "Comentario",
                 column: "PostagemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_POSTAGEM_AutorId",
-                table: "POSTAGEM",
+                name: "IX_Postagem_AutorId",
+                table: "Postagem",
                 column: "AutorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Postagem_AutorId1",
+                table: "Postagem",
+                column: "AutorId1");
         }
 
         /// <inheritdoc />
@@ -283,19 +282,16 @@ namespace Blog.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "COMENTARIO");
+                name: "Comentario");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "Postagem");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "POSTAGEM");
-
-            migrationBuilder.DropTable(
-                name: "AUTOR");
         }
     }
 }

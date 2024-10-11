@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blog.Data.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20241008011303_blog07102024-0")]
-    partial class blog071020240
+    [Migration("20241011000947_Blog10102024-1")]
+    partial class Blog101020241
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,100 +25,81 @@ namespace Blog.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Blog.Data.Entidade.Autor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("ID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("EMAIL");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("NOME");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AUTOR", (string)null);
-                });
-
             modelBuilder.Entity("Blog.Data.Entidade.Comentario", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("ID");
+                        .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AutorId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Conteudo")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("CONTEUDO");
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("DataPublicacao")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("EMAIL");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("NOME");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("PostagemId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AutorId");
+
                     b.HasIndex("PostagemId");
 
-                    b.ToTable("COMENTARIO", (string)null);
+                    b.ToTable("Comentario", (string)null);
                 });
 
             modelBuilder.Entity("Blog.Data.Entidade.Postagem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("ID");
+                        .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AutorId")
-                        .HasColumnType("int");
+                    b.Property<string>("AutorId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AutorId1")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Conteudo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("CONTEUDO");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<DateTime>("DataPublicacao")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DATA_PUBLICACAO");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Titulo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("TITULO");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AutorId");
 
-                    b.ToTable("POSTAGEM", (string)null);
+                    b.HasIndex("AutorId1");
+
+                    b.ToTable("Postagem", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -185,6 +166,11 @@ namespace Blog.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -236,6 +222,10 @@ namespace Blog.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasDiscriminator().HasValue("IdentityUser");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -319,14 +309,30 @@ namespace Blog.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Blog.Data.Entidade.Autor", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("Autor");
+                });
+
             modelBuilder.Entity("Blog.Data.Entidade.Comentario", b =>
                 {
+                    b.HasOne("Blog.Data.Entidade.Autor", "Autor")
+                        .WithMany()
+                        .HasForeignKey("AutorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Blog.Data.Entidade.Postagem", "Postagem")
                         .WithMany("Comentarios")
                         .HasForeignKey("PostagemId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_POSTAGEM_COMENTARIO");
+                        .IsRequired();
+
+                    b.Navigation("Autor");
 
                     b.Navigation("Postagem");
                 });
@@ -334,11 +340,13 @@ namespace Blog.Data.Migrations
             modelBuilder.Entity("Blog.Data.Entidade.Postagem", b =>
                 {
                     b.HasOne("Blog.Data.Entidade.Autor", "Autor")
-                        .WithMany("Postagens")
+                        .WithMany()
                         .HasForeignKey("AutorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_AUTOR_POSTAGEM");
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Blog.Data.Entidade.Autor", null)
+                        .WithMany("Postagens")
+                        .HasForeignKey("AutorId1");
 
                     b.Navigation("Autor");
                 });
@@ -394,14 +402,14 @@ namespace Blog.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Blog.Data.Entidade.Autor", b =>
-                {
-                    b.Navigation("Postagens");
-                });
-
             modelBuilder.Entity("Blog.Data.Entidade.Postagem", b =>
                 {
                     b.Navigation("Comentarios");
+                });
+
+            modelBuilder.Entity("Blog.Data.Entidade.Autor", b =>
+                {
+                    b.Navigation("Postagens");
                 });
 #pragma warning restore 612, 618
         }

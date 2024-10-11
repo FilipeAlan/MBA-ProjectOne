@@ -1,77 +1,83 @@
 ﻿using AutoMapper;
 using Blog.Data.Entidade;
 using Blog.Data.Interface;
-using Blog.Web.Mapping;
 using Blog.Web.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System.Security.Claims;
 
 namespace Blog.Web.Controllers
 {
     public class AutorController : Controller
-    {        
-        private readonly IMapper _mapper;
-        private readonly IAutorRepositorio _autorRepositorio;
-        public AutorController(IAutorRepositorio autorRepositorio, IMapper mapper)
+    {
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+
+        public AutorController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
         {
-            _autorRepositorio = autorRepositorio;
-            _mapper = mapper;
+            _userManager = userManager;
+            _signInManager = signInManager;            
         }
         
-        public async Task<IActionResult> Index()
+        public IActionResult Login()
         {
-            var autores = await _autorRepositorio.ObterTodos();
-            var autoresModel = _mapper.Map<IEnumerable<AutorModel>>(autores);
-
-            return View("Index", autoresModel);
-        }
-
-        public async Task<IActionResult> Create(int id)
-        {            
             return View();
-        }        
+        }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Nome,Email")] AutorModel autorModel)
-        {
-            if (!ModelState.IsValid)
-            {   
-                return View("Limbo");
-            }
-
-            var autor = _mapper.Map<Autor>(autorModel);
-            await _autorRepositorio.Adicionar(autor);
-
-            return RedirectToAction("Index");
-        }
-
-        public async Task<IActionResult> Edit()
-        {
-            return View();
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> Edit([Bind("Id","Nome","Email")] AutorModel autorModel)
+        public async Task<IActionResult> Login([Bind("Email,Password")]AutorModel autorModel)
         {
             if (!ModelState.IsValid)
             {
-                return View("Limbo");
+                return View(autorModel);
             }
-            var autor =_mapper.Map<Autor>(autorModel);
-            await _autorRepositorio.Atualizar(autor);
-            return RedirectToAction("Index");
+
+            var result = await _signInManager.PasswordSignInAsync(autorModel.Email, autorModel.Password, autorModel.RememberMe, false);
             
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ModelState.AddModelError(string.Empty, "Tentativa de login inválida.");
+            return View(autorModel);
         }
-        public async Task<IActionResult> Delete()
-        {            
+
+        public IActionResult Registrar()
+        {
             return View();
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPost]
+        public async Task<IActionResult> Registrar(AutorRegistrarModel autorRegistrarModel)
         {
-            await _autorRepositorio.Deletar(id);
-            return RedirectToAction("Index");
+            if (!ModelState.IsValid)
+            {
+                return View(autorRegistrarModel);
+            }
+           
+            var user = new Autor { UserName = autorRegistrarModel.Email, Email = autorRegistrarModel.Email, Nome = autorRegistrarModel.Nome };
+            var result = await _userManager.CreateAsync(user, autorRegistrarModel.Password);
+
+            if (result.Succeeded)
+            {
+                await _userManager.AddClaimAsync(user, new Claim("Nome", user.Nome));
+                return RedirectToAction("Login", "Autor");
+            }
+           
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(autorRegistrarModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

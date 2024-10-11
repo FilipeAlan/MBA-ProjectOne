@@ -5,10 +5,9 @@ using Blog.Data.Entidade;
 namespace Blog.Data.Context
 {
     public class BlogDbContext : IdentityDbContext
-    {
-        DbSet<Autor> Autores { get; set; }
-        DbSet<Comentario> Comentarios { get; set; }
-        DbSet<Postagem> Postagens { get; set; }
+    {       
+        public DbSet<Comentario> Comentarios { get; set; }
+        public DbSet<Postagem> Postagens { get; set; }
         public BlogDbContext(DbContextOptions options) : base(options) {}
 
         protected override void OnModelCreating(ModelBuilder builder)

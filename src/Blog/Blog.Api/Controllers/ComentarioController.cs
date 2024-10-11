@@ -18,7 +18,7 @@ namespace Blog.Api.Controllers
         }
 
         // GET: ComentarioController/Create
-        public ActionResult Create()
+        public ActionResult Criar()
         {
             return View();
         }
