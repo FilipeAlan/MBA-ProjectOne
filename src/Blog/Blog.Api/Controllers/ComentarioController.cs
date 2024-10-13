@@ -1,83 +1,99 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Blog.Api.Dto;
+using Blog.Data.Entidade;
+using Blog.Data.Interface;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Blog.Api.Controllers
 {
-    public class ComentarioController : Controller
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ComentarioController : ControllerBase
     {
-        // GET: ComentarioController
-        public ActionResult Index()
-        {
-            return View();
-        }
+        private readonly IComentarioRepositorio _comentarioRepositorio;
+        private readonly IMapper _mapper;
 
-        // GET: ComentarioController/Details/5
-        public ActionResult Details(int id)
+        public ComentarioController(IComentarioRepositorio comentarioRepositorio, IMapper mapper)
         {
-            return View();
+            _comentarioRepositorio = comentarioRepositorio;
+            _mapper = mapper;
         }
-
-        // GET: ComentarioController/Create
-        public ActionResult Criar()
+        
+        [HttpPost("criar")]
+        public async Task<IActionResult> Criar([FromBody] ComentarioDto comentarioDto)
         {
-            return View();
-        }
-
-        // POST: ComentarioController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                return BadRequest(ModelState);
             }
-            catch
-            {
-                return View();
-            }
-        }
 
-        // GET: ComentarioController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
+            var autorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (autorId == null)
+            {
+                return Unauthorized();
+            }
 
-        // POST: ComentarioController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+            var comentario = _mapper.Map<Comentario>(comentarioDto);
+            comentario.AutorId = autorId;
+            comentario.DataPublicacao = DateTime.Now;
 
-        // GET: ComentarioController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
+            await _comentarioRepositorio.Adicionar(comentario);
+            
+            return CreatedAtAction(nameof(ObterPorId), new { id = comentario.Id }, comentario);
         }
-
-        // POST: ComentarioController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObterPorId(int id)
         {
-            try
+            var comentario = await _comentarioRepositorio.ObterPorId(id);
+
+            if (comentario == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound(new { message = "Comentário não encontrado" });
             }
-            catch
+
+            var comentarioDto = _mapper.Map<ComentarioDto>(comentario);
+
+            return Ok(comentarioDto);
+        }
+        
+        [HttpPut("editar/{id}")]
+        public async Task<IActionResult> Editar(int id, [FromBody] ComentarioDto comentarioDto)
+        {
+            if (!ModelState.IsValid)
             {
-                return View();
+                return BadRequest(ModelState);
             }
+
+            var comentario = await _comentarioRepositorio.ObterPorId(id);
+
+            if (comentario == null)
+            {
+                return NotFound(new { message = "Comentário não encontrado" });
+            }
+
+            comentario.Conteudo = comentarioDto.Conteudo;
+
+            await _comentarioRepositorio.Atualizar(comentario);
+
+            return Ok(new { message = "Comentário atualizado com sucesso" });
+        }
+        
+        [HttpDelete("excluir/{id}")]
+        public async Task<IActionResult> Excluir(int id)
+        {
+            var comentario = await _comentarioRepositorio.ObterPorId(id);
+
+            if (comentario == null)
+            {
+                return NotFound(new { message = "Comentário não encontrado" });
+            }
+
+            await _comentarioRepositorio.Deletar(comentario);
+
+            return Ok(new { message = "Comentário excluído com sucesso" });
         }
     }
+
 }

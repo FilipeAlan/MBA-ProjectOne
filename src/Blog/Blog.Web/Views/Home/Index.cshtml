@@ -2,99 +2,111 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-4" id="postList">
-            <h4>Lista de Postagens</h4>
-            <ul class="list-group">
-                @foreach (var postagem in Model)
-                {
-                    <li class="list-group-item">
-                        <a href="#post-@postagem.Id">
-                            <h5>@postagem.Titulo</h5>
-                            <p>Publicado em: @postagem.DataPublicacao.ToShortDateString()</p>
-                        </a>
-                    </li>
-                }
-            </ul>
+        <div class="col-md-3" id="postList">
+            <h4 class="blog-title">Lista de Postagens</h4>
+            @if (Model.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var postagem in Model)
+                    {
+                        <li class="list-group-item">
+                            <a href="#post-@postagem.Id">
+                                <h5>@postagem.Titulo</h5>
+                                <p>Publicado em: @postagem.DataPublicacao.ToShortDateString()</p>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>Nenhuma postagem encontrada.</p>
+            }
             <div class="mt-3">
                 <a asp-controller="Postagem" asp-action="Criar" class="btn btn-primary">+ Nova Postagem</a>
             </div>
         </div>
+        @if (Model.Any())
+        {
+            <div class="col-md-9 border border-1" style="overflow-y: auto; max-height: 80vh;">
 
-        <div class="col-md-8" style="overflow-y: auto; max-height: 80vh;">
-            @foreach (var postagem in Model)
-            {
-                <div id="post-@postagem.Id" class="postagem-detalhe mb-4">
-                    <h2>@postagem.Titulo</h2>
-                    <p><strong>Publicado em:</strong> @postagem.DataPublicacao.ToString("dd/MM/yyyy")</p>
-                    <p><strong>Autor:</strong> @postagem.Autor.Nome</p>
-                    <div class="postagem-conteudo">
-                        @postagem.Conteudo
-                    </div>
+                <h2 class="blog-title">Postagens</h2>
+                @foreach (var postagem in Model)
+                {
+                    <div id="post-@postagem.Id" class="mb-4">
+                        <div class="list-group-item">
+                            <h5>@postagem.Titulo</h5>
+                            <p><strong>Publicado em:</strong> @postagem.DataPublicacao.ToString("dd/MM/yyyy")</p>
+                            <p><strong>Autor:</strong> @postagem.Autor.Nome</p>
+                            <p>@postagem.Conteudo</p>
+                        </div>
 
-                    @if (User.Identity.Name == @postagem.Autor.Email)
-                    {
-                        <a asp-action="Editar" asp-controller="Postagem" asp-route-id="@postagem.Id" class="btn btn-secondary btn-sm">
-                            Editar
-                        </a>
-                    }
+                        @if (User.Identity.Name == @postagem.Autor.Email)
+                        {
+                            <a asp-action="Editar" asp-controller="Postagem" asp-route-id="@postagem.Id" class="btn btn-secondary btn-sm">
+                                Editar
+                            </a>
+                        }
                         @if (User.IsInRole("Administrador") || User.Identity.Name == @postagem.Autor.Email)
                         {
-                        <form asp-action="Excluir" asp-controller="Postagem" asp-route-id="@postagem.Id" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta postagem?');">
-                                Excluir
-                            </button>
+                            <form asp-action="Excluir" asp-controller="Postagem" asp-route-id="@postagem.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta postagem?');">
+                                    Excluir
+                                </button>
+                            </form>
+                        }
+
+                        <h4 class="blog-title">Comentários</h4>
+                        <div id="comentarios-@postagem.Id">
+                            <ul class="list-group">
+                                @foreach (var comentario in postagem.Comentarios)
+                                {
+                                    <li class="list-group-item">
+                                        <p><strong>@comentario.Nome</strong> - @comentario.DataPublicacao.ToString("dd/MM/yyyy")</p>
+                                        <p>@comentario.Conteudo</p>
+                                        @if (User.Identity.Name == @comentario.Email)
+                                        {
+                                            <a asp-action="Editar" asp-controller="Comentario" asp-route-id="@comentario.Id" class="btn btn-secondary btn-sm">
+                                                Editar
+                                            </a>
+                                        }
+                                        @if (User.IsInRole("Administrador") || User.Identity.Name == @comentario.Email)
+                                        {
+
+                                            <form asp-action="Excluir" asp-controller="Comentario" asp-route-id="@comentario.Id" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este comentário?');">
+                                                    Excluir
+                                                </button>
+                                            </form>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+
+                        <form asp-action="Criar" asp-controller="Comentario" method="post">
+                            <input type="hidden" name="PostagemId" value="@postagem.Id" />
+
+                            <div class="form-group">
+                                <label for="nome">Nome:</label>
+                                <input type="text" name="Nome" value="@User.FindFirst("Nome")?.Value" class="form-control" readonly />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" name="Email" value="@User.Identity.Name" class="form-control" readonly />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="conteudo">Escreva seu comentário:</label>
+                                <textarea class="form-control" name="Conteudo" rows="3"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Adicionar Comentário</button>
                         </form>
-                    }
-
-                    <h4>Comentários</h4>
-                    <div id="comentarios-@postagem.Id">
-                        <ul class="list-group">
-                            @foreach (var comentario in postagem.Comentarios)
-                            {
-                                <li class="list-group-item">
-                                    <p><strong>@comentario.Nome</strong> - @comentario.DataPublicacao.ToString("dd/MM/yyyy")</p>
-                                    <p>@comentario.Conteudo</p>
-                                    @if (User.Identity.Name == @comentario.Email){
-                                        <a asp-action="Editar" asp-controller="Comentario" asp-route-id="@comentario.Id" class="btn btn-secondary btn-sm">
-                                            Editar
-                                        </a>
-                                    }
-                                    @if (User.IsInRole("Administrador") || User.Identity.Name == @comentario.Email)
-                                    {
-
-                                        <form asp-action="Excluir" asp-controller="Comentario" asp-route-id="@comentario.Id" method="post" class="d-inline">
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este comentário?');">
-                                                Excluir
-                                            </button>
-                                        </form>
-                                    }
-                                </li>
-                            }
-                        </ul>
                     </div>
-
-                    <form asp-action="Criar" asp-controller="Comentario" method="post">
-                        <input type="hidden" name="PostagemId" value="@postagem.Id" />
-
-                        <div class="form-group">
-                            <label for="nome">Nome:</label>
-                            <input type="text" name="Nome" value="@User.FindFirst("Nome")?.Value" class="form-control" readonly />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" name="Email" value="@User.Identity.Name" class="form-control" readonly />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="conteudo">Escreva seu comentário:</label>
-                            <textarea class="form-control" name="Conteudo" rows="3"></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Adicionar Comentário</button>
-                    </form>
-                </div>
-            }
-        </div>
+                }
+            </div>
+        }
     </div>
 </div>

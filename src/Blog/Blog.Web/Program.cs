@@ -11,7 +11,7 @@ builder.Services.AddAutoMapper(typeof(EntidadeModelMapping));
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Autor/Login";  
-    options.AccessDeniedPath = "/Autor/AccessDenied";
+    options.AccessDeniedPath = "/Home/Limbo";
 });
 
 var app = builder.Build();

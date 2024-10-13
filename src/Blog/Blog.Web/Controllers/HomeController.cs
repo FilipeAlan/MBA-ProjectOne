@@ -13,7 +13,7 @@ namespace Blog.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IPostagemRepositorio _postagemRepositorio;
         private readonly IMapper _mapper;
-
+        
         public HomeController(ILogger<HomeController> logger,IPostagemRepositorio postagemRepositorio,IMapper mapper )
         {
             _postagemRepositorio = postagemRepositorio;
@@ -27,6 +27,11 @@ namespace Blog.Web.Controllers
             var postagemModels = _mapper.Map<IEnumerable<PostagemModel>>(postagens);
 
             return View(postagemModels);
+        }
+
+        public IActionResult Limbo()
+        {
+            return View("Limbo");
         }
     }
 }

@@ -2,8 +2,10 @@
 using AutoMapper;
 using Blog.Api.Dto;
 using Blog.Data.Entidade;
+using Blog.Data.Util;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Blog.Api.Controllers
 {
@@ -11,87 +13,89 @@ namespace Blog.Api.Controllers
     [Route("api/[controller]")]
     public class AutorController : ControllerBase
     {
-        private readonly IMapper _mapper;
-        private readonly UserManager<Autor> _userManager; 
+        private readonly UserManager<Autor> _userManager;
+        private readonly SignInManager<Autor> _signInManager;
 
-        public AutorController(IMapper mapper, UserManager<Autor> userManager)
+        public AutorController(UserManager<Autor> userManager, SignInManager<Autor> signInManager)
         {
-            _mapper = mapper;
             _userManager = userManager;
+            _signInManager = signInManager;
         }
-                
-        [HttpGet]
-        public async Task<IActionResult> Index()
-        {
-            var autores = _userManager.Users.ToList(); 
-            var autoresDto = _mapper.Map<IEnumerable<AutorDto>>(autores);
-
-            return Ok(autoresDto);
-        }
-       
-        [HttpPost]
-        public async Task<IActionResult> Criar([FromBody] AutorRegistroDto autorDto)
+        
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] AutorDto autorDto)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(ModelState); 
             }
 
-            var autor = _mapper.Map<Autor>(autorDto);
-            
-            var result = await _userManager.CreateAsync(autor, autorDto.Password);
+            var user = await _userManager.FindByEmailAsync(autorDto.Email);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Usuário ou senha inválidos." }); 
+            }
 
-            if (!result.Succeeded)
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, autorDto.Password);
+            if (!isPasswordValid)
+            {
+                return Unauthorized(new { message = "Usuário ou senha inválidos." });
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(user, autorDto.Password, autorDto.RememberMe, true);
+            if (result.Succeeded)
             {                
-                return BadRequest(result.Errors);
-            }
+                var token = GenerateJwtToken(user);
+                                
+                return Ok(new { token });
+            }            
 
-            return Ok(autor);
+            return BadRequest(new { message = "Tentativa de login inválida." });
         }
         
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(string id, [FromBody] AutorDto autorDto)
+        [HttpPost("registrar")]
+        public async Task<IActionResult> Registrar([FromBody] AutorRegistroDto autorRegistroDto)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(ModelState); 
             }
 
-            var autor = await _userManager.FindByIdAsync(id);
-            if (autor == null)
+            var user = new Autor { UserName = autorRegistroDto.Email, Email = autorRegistroDto.Email, Nome = autorRegistroDto.Nome };
+            var result = await _userManager.CreateAsync(user, autorRegistroDto.Password);
+
+            if (result.Succeeded)
             {
-                return NotFound("Autor não encontrado.");
+                await _userManager.AddClaimAsync(user, new Claim("Nome", user.Nome));                
+                return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, new { id = user.Id, email = user.Email, nome = user.Nome });
             }
-           
-            autor.Nome = autorDto.Nome;
-            autor.Email = autorDto.Email;
-            autor.UserName = autorDto.Email; 
-
-            var result = await _userManager.UpdateAsync(autor);
-            if (!result.Succeeded)
-            {
-                return BadRequest(result.Errors);
-            }
-
-            return Ok(autor);
+            
+            return BadRequest(result.Errors);
         }
         
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(string id)
         {
-            var autor = await _userManager.FindByIdAsync(id);
-            if (autor == null)
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
             {
-                return NotFound("Autor não encontrado.");
+                return NotFound(new { message = "Usuário não encontrado." });
             }
 
-            var result = await _userManager.DeleteAsync(autor);
-            if (!result.Succeeded)
-            {
-                return BadRequest(result.Errors);
-            }
-
-            return Ok("Autor excluído com sucesso.");
+            return Ok(new { id = user.Id, email = user.Email, nome = user.Nome });
+        }
+        
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return Ok(new { message = "Logout realizado com sucesso." });
+        }
+        
+        // No MCV não precisei aqui tive que gerar. Mas não tratei passando em todos os métodos.
+        private string GenerateJwtToken(Autor user)
+        {
+            return GeradorToken.GerarToken(user);
         }
     }
 }

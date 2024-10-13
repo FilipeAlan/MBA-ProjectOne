@@ -1,5 +1,6 @@
 ﻿@model AutorRegistrarModel
-
+<div class="container bg-light border border-1 w-50 h-50">
+    <h2>Registrar Novo Usuário</h2>
 <form asp-action="Registrar" method="post">
     @if (!ViewData.ModelState.IsValid)
     {
@@ -37,8 +38,9 @@
         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Registrar</button>
+    <button type="submit" class="btn btn-primary">Registrar</button>     
 </form>
+</div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

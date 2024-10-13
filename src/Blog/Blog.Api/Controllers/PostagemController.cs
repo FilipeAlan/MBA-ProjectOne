@@ -10,33 +10,113 @@ using System.Security.Claims;
 
 namespace Blog.Api.Controllers
 {
-    public class PostagemController : Controller
+    [ApiController]
+    [Route("api/[controller]")]
+    public class PostagemController : ControllerBase
     {
         private readonly IPostagemRepositorio _postagemRepositorio;
         private readonly IMapper _mapper;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<Autor> _userManager;
 
-        public PostagemController(IComentarioRepositorio comentarioRepositorio, IPostagemRepositorio postagemRepositorio, IMapper mapper, UserManager<IdentityUser> userManager)
+        public PostagemController(IPostagemRepositorio postagemRepositorio, IMapper mapper, UserManager<Autor> userManager)
         {
             _postagemRepositorio = postagemRepositorio;
             _mapper = mapper;
             _userManager = userManager;
         }
-        [HttpPost]
-        public async Task<IActionResult> Registrar(AutorRegistroDto autorDto)
-        {            
-            try
+                
+        [HttpPost("criar")]
+        public async Task<IActionResult> Criar([FromBody] PostagemDto postagemModel)
+        {
+            if (!ModelState.IsValid)
             {
-                var user = new Autor { UserName = autorDto.Email, Email = autorDto.Email, Nome = autorDto.Nome };
-                await _userManager.CreateAsync(user, autorDto.Password);
+                return BadRequest(ModelState);
+            }
 
-                await _userManager.AddClaimAsync(user, new Claim("Nome", user.Nome));
-                return Ok();
-            }
-            catch (Exception ex)
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return Unauthorized(new { message = "Usuário não autenticado" });
             }
+
+            var postagem = _mapper.Map<Postagem>(postagemModel);
+            postagem.AutorId = user.Id;
+
+            await _postagemRepositorio.Adicionar(postagem);
+                        
+            return CreatedAtAction(nameof(ObterPorId), new { id = postagem.Id }, postagem);
+        }
+                
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObterPorId(int id)
+        {
+            var postagem = await _postagemRepositorio.ObterPorId(id);
+            if (postagem == null)
+            {
+                return NotFound(new { message = "Postagem não encontrada" });
+            }
+
+            var postagemModel = _mapper.Map<PostagemDto>(postagem);
+            return Ok(postagemModel);
+        }
+        
+        [HttpPut("editar/{id}")]
+        public async Task<IActionResult> Editar(int id, [FromBody] PostagemDto postagemModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var postagem = await _postagemRepositorio.ObterPorId(id);
+            if (postagem == null)
+            {
+                return NotFound(new { message = "Postagem não encontrada" });
+            }
+
+            postagem.Titulo = postagemModel.Titulo;
+            postagem.Conteudo = postagemModel.Conteudo;
+
+            await _postagemRepositorio.Atualizar(postagem);
+
+            return Ok(new { message = "Postagem atualizada com sucesso" });
+        }
+        
+        [HttpDelete("excluir/{id}")]
+        public async Task<IActionResult> Excluir(int id)
+        {
+            var postagem = await _postagemRepositorio.ObterPorId(id);
+            if (postagem == null)
+            {
+                return NotFound(new { message = "Postagem não encontrada" });
+            }
+
+            await _postagemRepositorio.Deletar(id);
+
+            return Ok(new { message = "Postagem excluída com sucesso" });
+        }
+        
+        [HttpGet("detalhes/{id}")]
+        public async Task<IActionResult> Detalhes(int id)
+        {
+            var postagem = await _postagemRepositorio.ObterPorId(id);
+            if (postagem == null)
+            {
+                return NotFound(new { message = "Postagem não encontrada" });
+            }
+
+            var postagemModel = _mapper.Map<PostagemDto>(postagem);
+            return Ok(postagemModel);
+        }
+
+        //Fica na home daa  web
+        [HttpGet("listar")] 
+        public async Task<IActionResult> Listar()
+        {
+            var postagens = await _postagemRepositorio.ObterTodas();
+            var postagensModel = _mapper.Map<IEnumerable<PostagemDto>>(postagens);
+            return Ok(postagensModel);
         }
     }
+
 }
