@@ -94,3 +94,8 @@ A estrutura do projeto é organizada da seguinte forma:
 A documentação da API está disponível através do Swagger. Após iniciar a API, acesse a documentação em:
 
 http://localhost:5001/swagger
+
+## **9. Usuário padrão
+
+A primeira vez que o projeto é inicializado é gerado um usuárioi padrão usuário:admin@admin.com Senha:Admin@123
+
