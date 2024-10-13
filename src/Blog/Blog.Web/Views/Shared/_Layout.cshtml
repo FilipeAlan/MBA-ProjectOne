@@ -44,7 +44,8 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+   
+    <div class="container-fluid bg-light p-3" style="min-height: 80vh;">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -52,9 +53,10 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - Blog.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2024 - Blog.Web
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

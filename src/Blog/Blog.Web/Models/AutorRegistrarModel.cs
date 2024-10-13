@@ -17,6 +17,8 @@ namespace Blog.Web.Models
 
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "As senhas não coincidem.")]
-        public string ConfirmPassword { get; set; }       
+        public string ConfirmPassword { get; set; }
+        public string Id { get; set; }
+        public bool EhAdmin { get; set; }
     }
 }

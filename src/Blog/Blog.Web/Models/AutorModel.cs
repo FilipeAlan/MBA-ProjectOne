@@ -10,13 +10,8 @@ namespace Blog.Web.Models
 
         [Required(ErrorMessage = "A senha é obrigatória.")]
         [DataType(DataType.Password)]
-        public string Password { get; set; }
-       
-        //Em alguns casos eu preciso, talvez vire outra model
-        public string Nome { get; set; }
-
+        public string Password { get; set; }               
+        public string Nome { get; set; }        
         public bool RememberMe { get; set; }
     }
-
-
 }

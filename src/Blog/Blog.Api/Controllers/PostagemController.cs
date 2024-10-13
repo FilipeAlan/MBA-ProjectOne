@@ -1,82 +1,41 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Blog.Api.Dto;
+using Blog.Data.Entidade;
+using Blog.Data.Interface;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
+using System.Security.Claims;
 
 namespace Blog.Api.Controllers
 {
     public class PostagemController : Controller
     {
-        // GET: PostagemController
-        public ActionResult Index()
-        {
-            return View();
-        }
+        private readonly IPostagemRepositorio _postagemRepositorio;
+        private readonly IMapper _mapper;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        // GET: PostagemController/Details/5
-        public ActionResult Details(int id)
+        public PostagemController(IComentarioRepositorio comentarioRepositorio, IPostagemRepositorio postagemRepositorio, IMapper mapper, UserManager<IdentityUser> userManager)
         {
-            return View();
+            _postagemRepositorio = postagemRepositorio;
+            _mapper = mapper;
+            _userManager = userManager;
         }
-
-        // GET: PostagemController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: PostagemController/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
+        public async Task<IActionResult> Registrar(AutorRegistroDto autorDto)
+        {            
             try
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+                var user = new Autor { UserName = autorDto.Email, Email = autorDto.Email, Nome = autorDto.Nome };
+                await _userManager.CreateAsync(user, autorDto.Password);
 
-        // GET: PostagemController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: PostagemController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
+                await _userManager.AddClaimAsync(user, new Claim("Nome", user.Nome));
+                return Ok();
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
-            }
-        }
-
-        // GET: PostagemController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: PostagemController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }

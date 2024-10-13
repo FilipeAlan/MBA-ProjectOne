@@ -2,18 +2,20 @@
 using Blog.Data.Entidade;
 using Blog.Data.Interface;
 using Blog.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.Web.Controllers
 {
+    [Authorize]
     public class PostagemController : Controller
     {
         private readonly IPostagemRepositorio _postagemRepositorio;
         private readonly IMapper _mapper;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<Autor> _userManager;
 
-        public PostagemController(IPostagemRepositorio postagemRepositorio, IMapper mapper , UserManager<IdentityUser> userManager)
+        public PostagemController(IPostagemRepositorio postagemRepositorio, IMapper mapper , UserManager<Autor> userManager)
         {
             _postagemRepositorio = postagemRepositorio;
             _mapper = mapper;
@@ -39,7 +41,7 @@ namespace Blog.Web.Controllers
                         
             if (user == null)
             {
-                return Unauthorized();
+                return View("Limbo");
             }
 
             var postagem = _mapper.Map<Postagem>(postagemModel);
@@ -74,7 +76,7 @@ namespace Blog.Web.Controllers
             
             if (postagem == null)
             {
-                return NotFound();
+                return View("Limbo");
             }
 
             postagem.Titulo = postagemModel.Titulo;
@@ -94,7 +96,7 @@ namespace Blog.Web.Controllers
             var postagem = await _postagemRepositorio.ObterPorId(id);
             if (postagem == null)
             {
-                return NotFound();
+                return View("Limbo");
             }
 
             await _postagemRepositorio.Deletar(id);
@@ -107,9 +109,10 @@ namespace Blog.Web.Controllers
             var postagem = await _postagemRepositorio.ObterPorId(id);
             if (postagem == null)
             {
-                return NotFound();             }
-
-            return View(postagem); 
+                return View("Limbo");            
+            }
+            var postagemModel = _mapper.Map<PostagemModel>(postagem);            
+            return View(postagemModel); 
         }
 
     }
