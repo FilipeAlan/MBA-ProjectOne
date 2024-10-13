@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blog.Data.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20241011000947_Blog10102024-1")]
-    partial class Blog101020241
+    [Migration("20241013231029_Blog13102024-0")]
+    partial class Blog131020240
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,9 +77,6 @@ namespace Blog.Data.Migrations
                     b.Property<string>("AutorId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AutorId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Conteudo")
                         .IsRequired()
                         .HasMaxLength(2000)
@@ -96,8 +93,6 @@ namespace Blog.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AutorId");
-
-                    b.HasIndex("AutorId1");
 
                     b.ToTable("Postagem", (string)null);
                 });
@@ -340,13 +335,9 @@ namespace Blog.Data.Migrations
             modelBuilder.Entity("Blog.Data.Entidade.Postagem", b =>
                 {
                     b.HasOne("Blog.Data.Entidade.Autor", "Autor")
-                        .WithMany()
+                        .WithMany("Postagens")
                         .HasForeignKey("AutorId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Blog.Data.Entidade.Autor", null)
-                        .WithMany("Postagens")
-                        .HasForeignKey("AutorId1");
 
                     b.Navigation("Autor");
                 });

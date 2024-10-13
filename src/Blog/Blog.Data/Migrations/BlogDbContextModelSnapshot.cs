@@ -74,9 +74,6 @@ namespace Blog.Data.Migrations
                     b.Property<string>("AutorId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AutorId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Conteudo")
                         .IsRequired()
                         .HasMaxLength(2000)
@@ -93,8 +90,6 @@ namespace Blog.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AutorId");
-
-                    b.HasIndex("AutorId1");
 
                     b.ToTable("Postagem", (string)null);
                 });
@@ -337,13 +332,9 @@ namespace Blog.Data.Migrations
             modelBuilder.Entity("Blog.Data.Entidade.Postagem", b =>
                 {
                     b.HasOne("Blog.Data.Entidade.Autor", "Autor")
-                        .WithMany()
+                        .WithMany("Postagens")
                         .HasForeignKey("AutorId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Blog.Data.Entidade.Autor", null)
-                        .WithMany("Postagens")
-                        .HasForeignKey("AutorId1");
 
                     b.Navigation("Autor");
                 });

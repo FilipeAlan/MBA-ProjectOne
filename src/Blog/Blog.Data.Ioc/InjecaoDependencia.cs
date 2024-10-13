@@ -29,6 +29,12 @@ namespace Blog.Data.Ioc
         }
         public static async Task InicializarDados(IServiceProvider serviceProvider)
         {
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<BlogDbContext>();
+                await context.Database.MigrateAsync();
+            }
+
             var userManager = serviceProvider.GetRequiredService<UserManager<Autor>>(); 
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 

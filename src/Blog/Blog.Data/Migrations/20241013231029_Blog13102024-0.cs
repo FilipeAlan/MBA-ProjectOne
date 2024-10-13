@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Blog.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Blog101020240 : Migration
+    public partial class Blog131020240 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -164,11 +164,10 @@ namespace Blog.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Titulo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Conteudo = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Titulo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Conteudo = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
                     DataPublicacao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AutorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    AutorId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    AutorId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -179,11 +178,6 @@ namespace Blog.Data.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Postagem_AspNetUsers_AutorId1",
-                        column: x => x.AutorId1,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -195,11 +189,19 @@ namespace Blog.Data.Migrations
                     Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Conteudo = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    PostagemId = table.Column<int>(type: "int", nullable: false)
+                    DataPublicacao = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PostagemId = table.Column<int>(type: "int", nullable: false),
+                    AutorId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Comentario", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Comentario_AspNetUsers_AutorId",
+                        column: x => x.AutorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Comentario_Postagem_PostagemId",
                         column: x => x.PostagemId,
@@ -248,6 +250,11 @@ namespace Blog.Data.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comentario_AutorId",
+                table: "Comentario",
+                column: "AutorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Comentario_PostagemId",
                 table: "Comentario",
                 column: "PostagemId");
@@ -256,11 +263,6 @@ namespace Blog.Data.Migrations
                 name: "IX_Postagem_AutorId",
                 table: "Postagem",
                 column: "AutorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Postagem_AutorId1",
-                table: "Postagem",
-                column: "AutorId1");
         }
 
         /// <inheritdoc />

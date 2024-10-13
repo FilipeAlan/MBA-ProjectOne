@@ -5,5 +5,6 @@ namespace Blog.Data.Interface
     public interface IComentarioRepositorio:IRepositorio<Comentario>
     {
         Task<Comentario> ObterPorId(int id);
+        Task ExcluirComentariosAutor(string autorId);
     }
 }

@@ -24,13 +24,13 @@ namespace Blog.Data.Configuracao
                 .IsRequired();
             
             builder.HasOne(p => p.Autor)
-                .WithMany()  
+                .WithMany(p => p.Postagens)  
                 .HasForeignKey(p => p.AutorId)             
                 .OnDelete(DeleteBehavior.Cascade);  
             
             builder.HasMany(p => p.Comentarios)
-                .WithOne(c => c.Postagem)
-                .HasForeignKey(c => c.PostagemId)
+                .WithOne(p => p.Postagem)
+                .HasForeignKey(p =>p.PostagemId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

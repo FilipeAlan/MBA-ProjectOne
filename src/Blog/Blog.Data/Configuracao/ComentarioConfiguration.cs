@@ -10,31 +10,34 @@ namespace Blog.Data.Configuracao
         {
             builder.ToTable("Comentario");
 
-            builder.HasKey(c => c.Id);     
+            builder.HasKey(c => c.Id);
 
-            builder.Property(c => c.Nome)                
+            builder.Property(c => c.Nome)
                 .HasMaxLength(100)
                 .IsRequired();
 
-            builder.Property(c => c.Email)                
+            builder.Property(c => c.Email)
                 .HasMaxLength(100)
                 .IsRequired();
 
             builder.Property(c => c.DataPublicacao)
                 .IsRequired();
 
-            builder.Property(c => c.Conteudo)                
+            builder.Property(c => c.Conteudo)
                 .HasMaxLength(500)
                 .IsRequired();
 
             builder.HasOne(c => c.Postagem)
                 .WithMany(p => p.Comentarios)
-                .HasForeignKey(c => c.PostagemId);
-            
+                .HasForeignKey(c => c.PostagemId)
+                .OnDelete(DeleteBehavior.Cascade); 
+
             builder.HasOne(c => c.Autor)
-                .WithMany() 
+                .WithMany()
                 .HasForeignKey(c => c.AutorId)
-                .OnDelete(DeleteBehavior.Restrict); 
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
+
+
 }

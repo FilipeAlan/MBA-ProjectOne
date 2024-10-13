@@ -1,8 +1,11 @@
 ﻿using Blog.Data.Entidade;
+using Blog.Data.Interface;
+using Blog.Data.Repositorio;
 using Blog.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Web.Controllers
 {
@@ -10,9 +13,11 @@ namespace Blog.Web.Controllers
     public class AdministrativoController : Controller
     {
         private readonly UserManager<Autor> _userManager;
-        public AdministrativoController(UserManager<Autor> userManager, RoleManager<IdentityRole> roleManager)
+        private readonly IComentarioRepositorio _comentarioRepositorio;
+        public AdministrativoController(UserManager<Autor> userManager, RoleManager<IdentityRole> roleManager,IComentarioRepositorio comentarioRepositorio)
         {
-            _userManager = userManager;         
+            _userManager = userManager;
+            _comentarioRepositorio = comentarioRepositorio;
         }
 
         public async Task<IActionResult> Index()
@@ -45,9 +50,12 @@ namespace Blog.Web.Controllers
                 return View("Limbo");
             }
 
+            await _comentarioRepositorio.ExcluirComentariosAutor(id);
+
             await _userManager.DeleteAsync(user);
             return RedirectToAction("Index");
         }
+
 
         [HttpPost]
         public async Task<IActionResult> ToggleAdminRole(string id)
