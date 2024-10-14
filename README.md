@@ -95,11 +95,11 @@ A documentação da API está disponível através do Swagger. Após iniciar a A
 
 http://localhost:5001/swagger
 
-## **10. Canal do youtube com Testes**
-
-https://youtu.be/H3khzOVEF8Q
-
 ## **9. Usuário padrão**
 
 A primeira vez que o projeto é inicializado é gerado um usuárioi padrão usuário:admin@admin.com Senha:Admin@123
+
+## **10. Canal do youtube com Testes**
+
+https://youtu.be/H3khzOVEF8Q
 
