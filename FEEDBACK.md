@@ -19,7 +19,7 @@
 
 - Será fornecido feedback na data final.
 
-## Problemas:
+## Problemas: Corrigido!
 
 - Não consegui executar a aplicação de imediato na máquina. É necessário que o Seed esteja configurado corretamente, com uma connection string apontando para o SQLite.
 
