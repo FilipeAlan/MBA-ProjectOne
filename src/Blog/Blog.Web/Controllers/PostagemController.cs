@@ -52,7 +52,8 @@ namespace Blog.Web.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-        
+
+        [HttpGet]       
         public async Task<IActionResult> Editar(int id)
         {
             var postagem = await _postagemRepositorio.ObterPorId(id);
@@ -72,9 +73,10 @@ namespace Blog.Web.Controllers
             {
                 return View("Edit", postagemModel);
             }
-            var postagem = await _postagemRepositorio.ObterPorId(postagemModel.Id);
+
+            var postagem = await _postagemRepositorio.ObterPorId(postagemModel.Id);         
             
-            if (postagem == null)
+            if (postagem == null || !await ValidarAcessoEdicao(postagem.AutorId))
             {
                 return View("Limbo");
             }
@@ -88,13 +90,14 @@ namespace Blog.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Excluir(int id)
         {
             var postagem = await _postagemRepositorio.ObterPorId(id);
-            if (postagem == null)
+
+            //curto circuito para evitar NullReferenceException
+            if (postagem == null || !await ValidarAcessoExclusao(postagem.AutorId))
             {
                 return View("Limbo");
             }
@@ -115,5 +118,23 @@ namespace Blog.Web.Controllers
             return View(postagemModel); 
         }
 
+        private async Task<bool> ValidarAcessoEdicao(string autorId) 
+        {
+            var autor = await _userManager.FindByIdAsync(autorId);
+            return (autor != null && (User.Identity.Name.Equals(autor.Email)));                
+        }
+        private async Task<bool> ValidarAcessoExclusao(string autorId)
+        {
+            var autor = await _userManager.FindByIdAsync(autorId);
+            if (autor == null)
+                return false;
+
+            //Considerei que administrador pode excluir qualquer postagem.
+            return (await EhAdministrador(autor) || User.Identity.Name.Equals(autor.Email));            
+        }
+        private async Task<bool> EhAdministrador(Autor user)
+        {
+            return await _userManager.IsInRoleAsync(user, "Administrador");
+        }
     }
 }

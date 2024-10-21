@@ -3,6 +3,7 @@ using Blog.Data.Entidade;
 using Blog.Data.Interface;
 using Blog.Web.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -13,11 +14,13 @@ namespace Blog.Web.Controllers
     {
         private readonly IComentarioRepositorio _comentarioRepositorio;
         private readonly IMapper _mapper;
+        private readonly UserManager<Autor> _userManager;
 
-        public ComentarioController(IComentarioRepositorio comentarioRepositorio,IMapper mapper)
+        public ComentarioController(IComentarioRepositorio comentarioRepositorio,IMapper mapper, UserManager<Autor> userManager)
         {
             _comentarioRepositorio = comentarioRepositorio;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         [HttpPost]
@@ -63,9 +66,9 @@ namespace Blog.Web.Controllers
 
             var comentario = await _comentarioRepositorio.ObterPorId(comentarioModel.Id);
 
-            if (comentario == null)
+            if (comentario == null || !await ValidarAcessoEdicao(comentario.AutorId))
             {
-                return NotFound();
+                return View("Limbo");
             }
 
             comentario.Conteudo = comentarioModel.Conteudo;
@@ -80,14 +83,32 @@ namespace Blog.Web.Controllers
         {
             var comentario = await _comentarioRepositorio.ObterPorId(id);
 
-            if (comentario == null)
+            if (comentario == null || !await ValidarAcessoExclusao(comentario.AutorId))
             {
-                return NotFound();
+                return View("Limbo");
             }
 
             await _comentarioRepositorio.Deletar(comentario);
 
             return RedirectToAction("Index", "Home");
+        }
+        private async Task<bool> ValidarAcessoEdicao(string autorId)
+        {
+            var autor = await _userManager.FindByIdAsync(autorId);
+            return (autor != null && (User.Identity.Name.Equals(autor.Email)));
+        }
+        private async Task<bool> ValidarAcessoExclusao(string autorId)
+        {
+            var autor = await _userManager.FindByIdAsync(autorId);
+            if (autor == null)
+                return false;
+
+            //Considerei que administrador pode excluir qualquer postagem.
+            return (await EhAdministrador(autor) || User.Identity.Name.Equals(autor.Email));
+        }
+        private async Task<bool> EhAdministrador(Autor user)
+        {
+            return await _userManager.IsInRoleAsync(user, "Administrador");
         }
     }
 

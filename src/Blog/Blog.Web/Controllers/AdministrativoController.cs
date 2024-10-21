@@ -14,7 +14,7 @@ namespace Blog.Web.Controllers
     {
         private readonly UserManager<Autor> _userManager;
         private readonly IComentarioRepositorio _comentarioRepositorio;
-        public AdministrativoController(UserManager<Autor> userManager, RoleManager<IdentityRole> roleManager,IComentarioRepositorio comentarioRepositorio)
+        public AdministrativoController(UserManager<Autor> userManager, RoleManager<IdentityRole> roleManager, IComentarioRepositorio comentarioRepositorio)
         {
             _userManager = userManager;
             _comentarioRepositorio = comentarioRepositorio;
@@ -22,7 +22,7 @@ namespace Blog.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var users = _userManager.Users.ToList();            
+            var users = _userManager.Users.ToList();
 
             var model = new List<AutorRegistrarModel>();
 
@@ -45,7 +45,9 @@ namespace Blog.Web.Controllers
         public async Task<IActionResult> Excluir(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
+
+            if (!await ValidarAcessoExclusao(user))
+
             {
                 return View("Limbo");
             }
@@ -55,7 +57,6 @@ namespace Blog.Web.Controllers
             await _userManager.DeleteAsync(user);
             return RedirectToAction("Index");
         }
-
 
         [HttpPost]
         public async Task<IActionResult> ToggleAdminRole(string id)
@@ -102,7 +103,12 @@ namespace Blog.Web.Controllers
 
             return RedirectToAction("Index");
         }
+        public async Task<bool> ValidarAcessoExclusao(Autor user)
+        {
+            if (user == null)
+                return false;
+
+            return await _userManager.IsInRoleAsync(user, "Administrador");
+        }
     }
-
-
 }
