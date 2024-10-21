@@ -16,7 +16,8 @@ namespace Blog.Data.Ioc
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            services.AddDbContext<BlogDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddDbContext<BlogDbContext>(options => options.UseSqlite(connectionString));
+           // services.AddDbContext<BlogDbContext>(options => options.UseSqlServer(connectionString));
 
             services.AddIdentity<Autor, IdentityRole>()
                 .AddEntityFrameworkStores<BlogDbContext>()
