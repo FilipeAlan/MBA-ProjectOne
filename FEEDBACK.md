@@ -10,7 +10,8 @@
 - Arquitetura enxuta de acordo com a complexidade do projeto
 - Mostrou entendimento do ecossistema de desenvolvimento em .NET
 
-## Pontos Negativos:
+## Pontos Negativos: Corrigido! Estava fazendo somente a validação do lado do cliente. A IoC é somente para separar
+## a parte do EF, ou seja, para não ter pacote da camada de banco de dados nem na API nem na MVC.
 
 - Aparentemente o projeto está incompleto na parte das aplicações Web, as controllers não fazem controle de usuário, é possível excluir um post de outro usuário.
 - Não vi sentido em uma camada apenas para IoC, dava para transformar a camada Data em "Core ou Application" e manter ela para atender todo o projeto.
