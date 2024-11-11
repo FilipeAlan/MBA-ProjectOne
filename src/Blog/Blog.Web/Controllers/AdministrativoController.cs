@@ -46,7 +46,7 @@ namespace Blog.Web.Controllers
         {
             var user = await _userManager.FindByIdAsync(id);
 
-            if (!await ValidarAcessoExclusao(user))
+            if (!await ValidarAcessoExclusao())
 
             {
                 return View("Limbo");
@@ -103,8 +103,10 @@ namespace Blog.Web.Controllers
 
             return RedirectToAction("Index");
         }
-        public async Task<bool> ValidarAcessoExclusao(Autor user)
+        public async Task<bool> ValidarAcessoExclusao()
         {
+            var user = await _userManager.GetUserAsync(User);
+
             if (user == null)
                 return false;
 
