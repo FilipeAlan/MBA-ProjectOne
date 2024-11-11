@@ -104,10 +104,11 @@ namespace Blog.Web.Controllers
                 return false;
 
             //Considerei que administrador pode excluir qualquer postagem.
-            return (await EhAdministrador(autor) || User.Identity.Name.Equals(autor.Email));
+            return (await EhAdministrador() || User.Identity.Name.Equals(autor.Email));
         }
-        private async Task<bool> EhAdministrador(Autor user)
+        private async Task<bool> EhAdministrador()
         {
+            var user = await _userManager.GetUserAsync(User);
             return await _userManager.IsInRoleAsync(user, "Administrador");
         }
     }
