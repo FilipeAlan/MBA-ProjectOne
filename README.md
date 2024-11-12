@@ -102,4 +102,5 @@ A primeira vez que o projeto é inicializado é gerado um usuárioi padrão usu�
 ## **10. Canal do youtube com Testes**
 
 https://youtu.be/H3khzOVEF8Q
+https://youtu.be/JbQ-6vo18Jw Testes com correções
 
